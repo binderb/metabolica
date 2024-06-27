@@ -3,31 +3,24 @@
 @tailwind utilities;
 
 :root {
-  --foreground-rgb: 0, 0, 0;
-  --background-start-rgb: 214, 219, 220;
-  --background-end-rgb: 255, 255, 255;
+  --skyblue: 136, 213, 254;
+  --seafoam: 131, 255, 205;
+  --primary: 0, 158, 224;
+  --secondary: 131, 255, 205;
+  --dark: 51, 50, 61;
+  --mid: 85, 84, 95;
+  --light: 187, 186, 191;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-rgb: 255, 255, 255;
-    --background-start-rgb: 0, 0, 0;
-    --background-end-rgb: 0, 0, 0;
-  }
+
+.std-button-lite {
+  @apply py-2 px-3 bg-primary text-white rounded-md hover:brightness-[1.2] flex items-center gap-2 duration-200
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+.std-button-lite:disabled {
+  @apply opacity-50 hover:bg-primary
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+.std-input {
+  @apply p-2 bg-white/70 rounded-md
 }
