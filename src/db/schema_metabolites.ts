@@ -1,10 +1,12 @@
 import { relations } from "drizzle-orm";
-import { boolean, decimal, integer, pgTable, serial, varchar } from "drizzle-orm/pg-core";
+import { boolean, decimal, integer, pgTable, serial, text, varchar } from "drizzle-orm/pg-core";
+import { FcTreeStructure } from "react-icons/fc";
 
 export const metabolites = pgTable('metabolites', {
   id: serial('id').primaryKey(),
   name: varchar('name', {length: 500}).notNull(),
-  smiles: varchar('smiles', {length: 500}).notNull(),
+  structure: text('structure'),
+  svg: text('svg'),
 });
 
 export const reactions = pgTable('reactions', {

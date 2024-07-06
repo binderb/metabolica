@@ -19,9 +19,7 @@ export const authOptions: NextAuthOptions = {
         password: {label: "Password", type: "password"}
       },
       async authorize(credentials:any): Promise<any> {
-        console.log('authorizing...');
         const matchingUsers = await db.select().from(users).where(eq(users.username,credentials.username));
-        console.log('matching users: ',matchingUsers);
         if (matchingUsers.length !== 1) {
           throw new Error('Incorrect username/password.');
         }
@@ -42,7 +40,6 @@ export const authOptions: NextAuthOptions = {
     async jwt({token, user}) {
       if (user) {
         token.user = user;
-        console.log(token);
       }
       return token;
     },

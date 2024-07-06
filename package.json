@@ -14,11 +14,15 @@
     "@neondatabase/serverless": "^0.9.3",
     "bcrypt": "^5.1.1",
     "drizzle-orm": "^0.31.2",
+    "jsme-editor": "^2023.7.31",
+    "jsme-react": "^0.0.9",
+    "kekule": "^1.0.1",
     "next": "^14.2.4",
     "next-auth": "^4.24.7",
     "react": "^18",
     "react-dom": "^18",
-    "react-icons": "^5.2.1"
+    "react-icons": "^5.2.1",
+    "sharp": "^0.33.4"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
