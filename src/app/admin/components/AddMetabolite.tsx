@@ -1,8 +1,7 @@
 'use client';
 
-import SubmitButton from '@/app/(global components)/SubmitButton';
+import SubmitButton from '@/app/(_global components)/SubmitButton';
 import { addMetabolite } from '../actions';
-import { Jsme } from 'jsme-react';
 import { useEffect, useRef, useState } from 'react';
 import Script from 'next/script';
 
@@ -18,7 +17,9 @@ export default function AddMetabolite() {
         jsme.setCallBack('AfterStructureModified', function() {
           setMol(jsme.molFile(false));
         });
+        window.jsme = jsme;
       }
+      
     }
   }, []);
 
@@ -29,7 +30,6 @@ export default function AddMetabolite() {
 
   async function handleAddMetabolite(formData: FormData) {
     try {
-      // add structure to formData
       formData.append('structure', mol);
       await addMetabolite(formData);
     } catch (err:any) {
@@ -39,7 +39,7 @@ export default function AddMetabolite() {
 
   return (
     <>
-    <Script src='jsme/jsme.nocache.js' />
+    <Script src='/jsme/jsme.nocache.js' async />
     <section className='bg-white/50 rounded-md p-4 w-full'>
       <form action={handleAddMetabolite} className='flex flex-col gap-2'>
         <section className='flex justify-between items-center'>
@@ -63,25 +63,24 @@ export default function AddMetabolite() {
                 <input className='std-input w-full' name='name' />
               </td>
             </tr>
+            {/* Short Name */}
+            <tr>
+              <td className='bg-white/50 p-1 font-bold'>
+                <div>Short Name (optional):</div>
+              </td>
+              <td className='bg-white/50 p-1'>
+                <input className='std-input w-full' name='shortName' />
+              </td>
+            </tr>
             {/* Structure */}
             <tr>
               <td className='bg-white/50 p-1 font-bold'>
                 <div>Structure:</div>
               </td>
               <td className='bg-white/50 p-1'>
-                {/* <Jsme ref={jsmeRef} src='jsme/jsme.nocache.js' height="300px" width="400px" options="polarnitro,noquery,oldlook,noatommovebutton"  onChange={()=>console.log(jsmeRef)}/> */}
                 <div id='jsme-container' ref={jsmeRef}></div>
-                {/* <input className='std-input w-full' name='structure' /> */}
               </td>
-            </tr>
-            <tr>
-              <td className='bg-white/50 p-1 font-bold'>
-                <div>SVG:</div>
-              </td>
-              <td className='bg-white/50 p-1'>
-                <input className='std-input w-full' name='svg' />
-              </td>
-            </tr>
+            </tr>    
           </tbody>
         </table>
       </form>

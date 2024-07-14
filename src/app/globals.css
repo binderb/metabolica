@@ -10,11 +10,23 @@
   --dark: 51, 50, 61;
   --mid: 85, 84, 95;
   --light: 187, 186, 191;
+  --danger: 255, 85, 59;
 }
 
+.std-link {
+  @apply font-bold text-primary underline hover:brightness-[1.2]
+}
+
+.dark-link {
+  @apply font-bold text-dark underline hover:brightness-[1.5]
+}
 
 .std-button-lite {
   @apply py-2 px-3 bg-primary text-white rounded-md hover:brightness-[1.2] flex items-center gap-2 duration-200
+}
+
+.danger-button-lite {
+  @apply py-2 px-3 bg-danger text-white rounded-md hover:brightness-[1.2] flex items-center gap-2 duration-200
 }
 
 .std-button-lite:disabled {
@@ -23,4 +35,20 @@
 
 .std-input {
   @apply p-2 bg-white/70 rounded-md
+}
+
+.tab-group button {
+  @apply bg-white/50 hover:bg-white duration-200 px-3 py-2 border-[1px] border-dark ml-[-1px]
+}
+
+.tab-group button.selected {
+  @apply bg-primary text-white
+}
+
+.tab-group button:first-child {
+  @apply rounded-l-md
+}
+
+.tab-group button:last-child {
+  @apply rounded-r-md
 }

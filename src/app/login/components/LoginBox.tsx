@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import SubmitButton from '@/app/(global components)/SubmitButton';
+import SubmitButton from '@/app/(_global components)/SubmitButton';
 
 export default function LoginBox() {
   const [loginStatus, setLoginStatus] = useState('');

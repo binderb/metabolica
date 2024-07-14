@@ -18,6 +18,7 @@ const config: Config = {
         dark: 'rgba(var(--dark), <alpha-value>)',
         mid: 'rgba(var(--mid), <alpha-value>)',
         light: 'rgba(var(--light), <alpha-value>)',
+        danger: 'rgba(var(--danger), <alpha-value>)',
       },
       fontFamily: {
         source: ['var(--source)', ...fontFamily.sans]
