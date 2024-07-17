@@ -10,6 +10,7 @@ type Props = {
 
 export default function MoleculeViewer ({structure, id}: Props) {
   useEffect(() => {
+    if (structure === '' || document === undefined || window === undefined) return;
     const chemViewer = new Kekule.ChemWidget.Viewer(document.getElementById(`chemViewer-${id}`));
     const mol = Kekule.IO.loadFormatData(structure, 'mol');
     chemViewer.setChemObj(mol);

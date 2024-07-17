@@ -3,6 +3,7 @@ import { boolean, decimal, integer, pgTable, serial, text, varchar } from "drizz
 import { FcTreeStructure } from "react-icons/fc";
 
 export type Metabolite = typeof metabolites.$inferSelect;
+export type Reaction = typeof reactions.$inferSelect;
 
 export const metabolites = pgTable('metabolites', {
   id: serial('id').primaryKey(),

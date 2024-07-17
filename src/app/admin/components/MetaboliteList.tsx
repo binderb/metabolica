@@ -31,7 +31,7 @@ export default function MetaboliteList({ metabolites }: Props) {
         <section className='flex justify-between items-center'>
           <h1 className='text-lg font-bold text-primary'>Metabolites</h1>
         </section>
-        <MoleculeViewer id={10} structure={metabolites[2].structure || ''} />
+        {/* <MoleculeViewer id={10} structure={metabolites[2].structure || ''} /> */}
         <section className='flex items-center gap-2'>
           <div className='font-bold'>Name Search:</div>
           <input type='text' className='std-input flex-grow' value={search} onChange={(e) => setSearch(e.target.value)} />
