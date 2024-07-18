@@ -39,6 +39,7 @@ export default function Structure({ mol }: Props) {
       console.log(err);
       setMolObject({ atoms: [], bonds: [] } as MolObject);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mol]);
 
   function parseMol() {
@@ -73,7 +74,7 @@ export default function Structure({ mol }: Props) {
 
   return (
     <>
-      <svg viewBox={`${Math.min(...molObject.atoms.map((atom) => atom.x)) - 0.2} ${Math.min(...molObject.atoms.map((atom) => atom.y)) - 0.2} ${Math.max(...molObject.atoms.map((atom) => atom.x)) - Math.min(...molObject.atoms.map((atom) => atom.x)) + 0.4} ${Math.max(...molObject.atoms.map((atom) => atom.y)) - Math.min(...molObject.atoms.map((atom) => atom.y)) + 0.4}`} className='w-full'>
+      <svg viewBox={`${Math.min(...molObject.atoms.map((atom) => atom.x)) - 0.2} ${Math.min(...molObject.atoms.map((atom) => atom.y)) - 0.2} ${Math.max(...molObject.atoms.map((atom) => atom.x)) - Math.min(...molObject.atoms.map((atom) => atom.x)) + 0.4} ${Math.max(...molObject.atoms.map((atom) => atom.y)) - Math.min(...molObject.atoms.map((atom) => atom.y)) + 0.4}`} className='h-full'>
         {molObject.atoms.map((atom, index) => (
           // <circle
           //   key={index}
@@ -83,7 +84,7 @@ export default function Structure({ mol }: Props) {
           //   fill='black'
           // />
           
-          <text x={atom.x} y={atom.y} fontSize={0.5} textAnchor="middle" baselineShift={-0.165}>
+          <text key={index} x={atom.x} y={atom.y} fontSize={0.5} textAnchor="middle" baselineShift={-0.165}>
             {atom.element !== 'C' ? atom.element : ''}
           </text>
         ))}

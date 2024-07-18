@@ -44,7 +44,7 @@ M  END`
             Structure Parse Test
           </h1>
         </section>
-        <section>
+        <section className='h-[100px]'>
           <Structure mol={mol} />
         </section>
         <section className="flex justify-between items-center">
