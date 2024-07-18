@@ -20,7 +20,7 @@ export const reactions = pgTable('reactions', {
   id: serial('id').primaryKey(),
   identifier: varchar('identifier', {length: 500}).notNull(),
   enzyme: integer('enzyme').references(()=>enzymes.id),
-  deltaG: decimal('delta_g',{precision: 5, scale: 2}).notNull(), // maybe for now, just set to 0 if a reaction is supposed to be reversible, and set to -1000 if it's irreversible. This is just a placeholder for now.
+  deltaG: decimal('delta_g',{precision: 5, scale: 2}).notNull(), // maybe for now, just set to 0 if a reaction is supposed to be reversible, and set to 1 if it's irreversible. This is just a placeholder for now.
   description: text('description'),
   reverseDescription: text('reverse_description'),
 });
@@ -40,6 +40,7 @@ export const metabolitesToReactions = pgTable('metabolites_rxns', {
   reactionId: integer('reaction_id').references(()=>reactions.id).notNull(),
   index: decimal('index',{precision: 3, scale: 1}).notNull(), // to keep track of relationships between reactants and products; multiple species that combine to form a product will have the same whole number index and different decimal indices. Same idea for reactants that split into multiple products.
   side: integer('side').notNull(), // 0 for reactants, 1 for products
+  short: boolean('short').notNull(), // true if short name should be displayed instead of structure
 });
 
 export const metabolitesToReactionsRelations = relations(metabolitesToReactions, ({one}) => ({
