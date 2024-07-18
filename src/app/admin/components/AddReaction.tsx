@@ -10,6 +10,7 @@ import { FaPlus, FaTrashAlt } from 'react-icons/fa';
 type SubReaction = {
   before: Metabolite[];
   after: Metabolite[];
+  short: boolean;
 };
 
 type Props = {
@@ -17,7 +18,7 @@ type Props = {
 };
 
 export default function AddReaction({ metabolites }: Props) {
-  const [subReactions, setSubReactions] = useState([{ before: [], after: [] }] as SubReaction[]);
+  const [subReactions, setSubReactions] = useState([{ before: [], after: [], short: false }] as SubReaction[]);
   const [showModal, setShowModal] = useState(false);
   const [currentRxnIndex, setCurrentRxnIndex] = useState(0);
   const [currentRxnSide, setCurrentRxnSide] = useState('before' as 'before' | 'after');
@@ -32,7 +33,7 @@ export default function AddReaction({ metabolites }: Props) {
 
   function handleAddSubRxn () {
     const newSubReactions = [...subReactions];
-    newSubReactions.push({ before: [], after: [] });
+    newSubReactions.push({ before: [], after: [], short: false });
     setSubReactions(newSubReactions);
   }
 

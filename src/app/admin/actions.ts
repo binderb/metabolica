@@ -7,6 +7,7 @@ import { revalidatePath } from "next/cache";
 type SubReaction = {
   before: Metabolite[];
   after: Metabolite[];
+  short: boolean;
 };
 
 export async function addMetabolite (formData:FormData) {
@@ -53,6 +54,7 @@ export async function addReaction (formData:FormData, subRxns: SubReaction[]) {
         reactionId: newRxn[0].id,
         index: `${i}.${j}`,
         side: 0,
+        short: subRxn.short,
       }]);
     }
     for (let j=0; j<subRxn.after.length; j++) {
@@ -61,6 +63,7 @@ export async function addReaction (formData:FormData, subRxns: SubReaction[]) {
         reactionId: newRxn[0].id,
         index: `${i}.${j}`,
         side: 1,
+        short: subRxn.short,
       }]);
     }
   }

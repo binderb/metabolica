@@ -8,6 +8,7 @@ export default async function Admin () {
       <Link href='/admin/metabolites' className='std-button-lite'>Metabolites</Link>
       <Link href='/admin/reactions' className='std-button-lite'>Reactions</Link>
       <Link href='/admin/pathways' className='std-button-lite'>Pathways</Link>
+      <Link href='/admin/structure-test' className='std-button-lite'>Structure Test</Link>
     </main>
   );
 }
