@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { FiCopy } from 'react-icons/fi';
 import Modal from '@/app/(_global components)/Modal';
 import { FaAtom } from 'react-icons/fa';
+import Structure from './Structure';
 
 type Props = {
   metabolites: Metabolite[];
@@ -53,7 +54,8 @@ export default function MetaboliteList({ metabolites }: Props) {
                     <div>{metabolite.name}</div>
                   </td>
                   <td className='bg-white/50 p-1'>
-                    <MoleculeViewer id={index} structure={metabolite.structure || ''} />
+                    {/* <MoleculeViewer id={index} structure={metabolite.structure || ''} /> */}
+                    <Structure mol={metabolite.structure || ''} scale={20} />
                   </td>
                   <td className='bg-white/50 p-1 flex flex-col items-start justify-center gap-2 h-full'>
                     <button className='std-button-lite' onClick={() => window.jsme.readMolFile(metabolite.structure)}>

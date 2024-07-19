@@ -45,7 +45,7 @@ M  END`
           </h1>
         </section>
         <section className='h-[100px]'>
-          <Structure mol={mol} />
+          <Structure mol={mol} scale={25} />
         </section>
         <section className="flex justify-between items-center">
           <h1 className="text-lg font-bold text-primary">Mol Input</h1>
