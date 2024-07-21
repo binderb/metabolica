@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 
 type Props = {
   mol: string;
@@ -13,6 +13,7 @@ type MolObject = {
 
 type Atom = {
   element: string;
+  valence: number;
   x: number;
   y: number;
   z: number;
@@ -57,6 +58,8 @@ export default function Structure({ mol, scale }: Props) {
           x: parseFloat(line.slice(0, 10)),
           y: parseFloat(line.slice(10, 20)) * -1, // flip coordinate system for svg
           z: parseFloat(line.slice(20, 30)),
+          charge: 0,
+          valence: getValence(line.slice(31, 34).trim()),
         } as Atom;
         newMolObject.atoms.push(atom);
       } else if (!line.includes('.') && line.length > 0 && !line.startsWith('M') && !line.includes('V2000') && i > 2) {
@@ -68,23 +71,131 @@ export default function Structure({ mol, scale }: Props) {
         } as Bond;
         newMolObject.bonds.push(bond);
       }
+      // if the line starts with 'M  CHG' then it is a charge line
+      // modify the charge of the atom with the corresponding atom number
+      if (line.startsWith('M  CHG')) {
+        const atomNumber = parseInt(line.slice(10, 15));
+        const charge = parseInt(line.slice(15, 18));
+        const atom = newMolObject.atoms.find((atom) => newMolObject.atoms.indexOf(atom) + 1 === atomNumber);
+        if (atom) atom.charge = charge;
+        console.log(`atom ${atomNumber} has charge ${charge}`);
+      }
     }
-    console.log(JSON.stringify(newMolObject));
     return newMolObject;
+  }
+
+  function getValence(element: string) {
+    switch (element) {
+      case 'H':
+        return 1;
+      case 'C':
+        return 4;
+      case 'N':
+        return 3;
+      case 'O':
+        return 2;
+      case 'F':
+        return 1;
+      case 'P':
+        return 3;
+      case 'S':
+        return 2;
+      case 'Cl':
+        return 1;
+      case 'Br':
+        return 1;
+      case 'I':
+        return 1;
+      default:
+        return 0;
+    }
   }
 
   return (
     <>
       <svg
-        viewBox={`${Math.min(...molObject.atoms.map((atom) => atom.x)) - 0.6} ${Math.min(...molObject.atoms.map((atom) => atom.y)) - 0.6} ${Math.max(...molObject.atoms.map((atom) => atom.x)) - Math.min(...molObject.atoms.map((atom) => atom.x)) + 1.2} ${Math.max(...molObject.atoms.map((atom) => atom.y)) - Math.min(...molObject.atoms.map((atom) => atom.y)) + 1.2}`}
-        style={{ width: `${(Math.max(...molObject.atoms.map((atom) => atom.x)) - Math.min(...molObject.atoms.map((atom) => atom.x)) + 1.2) * scale}`, height: `${(Math.max(...molObject.atoms.map((atom) => atom.y)) - Math.min(...molObject.atoms.map((atom) => atom.y)) + 1.2) * scale}` }}>
-        {molObject.atoms.map((atom, index) => (
+        viewBox={molObject.atoms.length > 0 ? `${Math.min(...molObject.atoms.map((atom) => atom.x)) - 1.2} ${Math.min(...molObject.atoms.map((atom) => atom.y)) - 1.2} ${Math.max(...molObject.atoms.map((atom) => atom.x)) - Math.min(...molObject.atoms.map((atom) => atom.x)) + 2.4} ${Math.max(...molObject.atoms.map((atom) => atom.y)) - Math.min(...molObject.atoms.map((atom) => atom.y)) + 2.4}` : `0 0 0 0`}
+        style={{ width: `${(Math.max(...molObject.atoms.map((atom) => atom.x)) - Math.min(...molObject.atoms.map((atom) => atom.x)) + 2.4) * scale}`, height: `${(Math.max(...molObject.atoms.map((atom) => atom.y)) - Math.min(...molObject.atoms.map((atom) => atom.y)) + 2.4) * scale}` }}>
+        {molObject.atoms.map((atom, index) => {
+          let element = atom.element;
+          let textAnchor = 'middle';
+          let dx = 0;
+          let dy = 0;
 
-          <text key={index} x={atom.x} y={atom.y} fontSize={0.7} textAnchor='middle' baselineShift={-0.25}>
-            {atom.element !== 'C' ? atom.element : ''}
-            {/* {index+1} */}
-          </text>
-        ))}
+          const bondsToThisAtom = molObject.bonds.filter((bond) => bond.atom1 === index + 1 || bond.atom2 === index + 1);
+          // Determine number of hydrogens to add.
+          // This is the difference between the valence of the atom (adjusted by the charge) and the number of bonds to the atom (each multiplied by bond order).
+          const valence = atom.valence + atom.charge;
+          const bonds = bondsToThisAtom.reduce((acc, bond) => acc + bond.order, 0);
+          const hydrogens = valence - bonds;
+          // Format the hydrogens, using unicode subscripts for the number.
+          let hydrogensString = '';
+          if (hydrogens > 0) {
+            if (hydrogens === 1) hydrogensString = 'H';
+            else
+              hydrogensString = `H${hydrogens
+                .toString()
+                .split('')
+                .map((char) => String.fromCharCode(8320 + parseInt(char)))
+                .join('')}`;
+          }
+
+          // Add unicode superscript for charge
+          let chargeString = '';
+          if (atom.charge !== 0) {
+            if (Math.abs(atom.charge) > 1) {
+              chargeString += Math.abs(atom.charge).toString().split('').map((char) => String.fromCharCode(8320 + parseInt(char))).join('');
+              
+            }
+            // Add unicode superscript + or - for charge
+            chargeString += atom.charge > 0 ? String.fromCharCode(8314) : String.fromCharCode(8315);
+            dx += 0.15;
+            dy -= 0.05;
+          }
+
+          if (atom.element !== 'C') {
+            // Decide which side to place the hydrogens on. If most bonds are on the right side, place the hydrogens on the left side.
+            let leftBonds = 0;
+              let rightBonds = 0;
+              bondsToThisAtom.forEach((bond) => {
+                if (bond.atom1 === index + 1) {
+                  if (molObject.atoms[bond.atom2 - 1].x < atom.x) leftBonds++;
+                  else rightBonds++;
+                } else {
+                  if (molObject.atoms[bond.atom1 - 1].x < atom.x) leftBonds++;
+                  else rightBonds++;
+                }
+              });
+            if (hydrogens > 0) {
+              
+              if (leftBonds > rightBonds) {
+                textAnchor = 'start';
+                dx = -0.22;
+                element = `${element}${hydrogensString}${chargeString}`;
+              } else {
+                textAnchor = 'end';
+                dx = 0.22;
+                element = `${chargeString}${hydrogensString}${element}`;
+              }
+            } else {
+              if (leftBonds > rightBonds) {
+                element = `${element}${chargeString}`;
+              } else {
+                element = `${chargeString}${element}`;
+                if (chargeString !== '') dx -= 0.32;
+              }
+            }
+            
+          } else {
+            element = '';
+          }
+
+          return (
+            <text key={index} x={atom.x} dx={dx} y={atom.y} dy={dy} fontSize={0.7} textAnchor={textAnchor} baselineShift={-0.25}>
+              {element}
+            </text>
+          );
+        })}
         {molObject.bonds.map((bond, index) => {
           const atom1 = molObject.atoms[bond.atom1 - 1];
           const atom2 = molObject.atoms[bond.atom2 - 1];
@@ -125,14 +236,11 @@ export default function Structure({ mol, scale }: Props) {
               const perpDx = 0.1 * Math.cos(perpAngle);
               const perpDy = 0.1 * Math.sin(perpAngle);
               return (
-                <>
+                <Fragment key={index}>
                   <line x1={startX - perpDx} y1={startY - perpDy} x2={endX - perpDx} y2={endY - perpDy} stroke='black' strokeWidth={0.05} strokeLinecap='round' />
                   <line x1={startX + perpDx} y1={startY + perpDy} x2={endX + perpDx} y2={endY + perpDy} stroke='black' strokeWidth={0.05} strokeLinecap='round' />
-                </>
+                </Fragment>
               );
-
-
-
             } else {
               // non-terminal double bond. Draw a bond just like the single bonded case. Then draw a second line parallel to the first, but with a small separation and shortened slightly on each end
               const dx = endX - startX;
@@ -153,14 +261,8 @@ export default function Structure({ mol, scale }: Props) {
                   nextBond.atom2 = temp;
                 }
               }
-              console.log(`bond: ${bond.atom1} to ${bond.atom2}`);
-                console.log(`prevBond: ${prevBond?.atom1 || '(null)'} to ${prevBond?.atom2 || '(null)'}`);
-                console.log(`nextBond: ${nextBond?.atom1 || '(null)'} to ${nextBond?.atom2 || '(null)'}`);
-              
+
               if (prevBond && nextBond) {
-                console.log(`bond: ${bond.atom1} to ${bond.atom2}`);
-                console.log(`prevBond: ${prevBond.atom1} to ${prevBond.atom2}`);
-                console.log(`nextBond: ${nextBond.atom1} to ${nextBond.atom2}`);
                 const prevAtom1 = molObject.atoms[prevBond.atom1 - 1];
                 const prevAtom2 = molObject.atoms[prevBond.atom2 - 1];
                 const nextAtom1 = molObject.atoms[nextBond.atom1 - 1];
@@ -182,44 +284,26 @@ export default function Structure({ mol, scale }: Props) {
                 // find the distance between each adjusted midpoint and the midpoint between prevAtom1 and nextAtom2
                 const distance1 = Math.sqrt((adjustedMidX - midX) ** 2 + (adjustedMidY - midY) ** 2);
                 const distance2 = Math.sqrt((adjustedMidX2 - midX) ** 2 + (adjustedMidY2 - midY) ** 2);
-                console.log(`distance1: ${distance1}`);
-                console.log(`distance2: ${distance2}`);
                 // if distance1 is greater than distance2, flip the direction of perpDx and perpDy
                 if (distance1 > distance2) {
                   perpDx *= -1;
                   perpDy *= -1;
                 }
-
-                // const prevAngle = Math.atan2(prevAtom1.y - currentAtom1.y, prevAtom1.x - currentAtom1.x) - Math.atan2(currentAtom2.y - currentAtom1.y, currentAtom2.x - currentAtom1.x);
-                // const nextAngle = Math.atan2(nextAtom2.y - currentAtom2.y, nextAtom2.x - currentAtom2.x) - Math.atan2(currentAtom1.y - currentAtom2.y, currentAtom1.x - currentAtom2.x);
-                // if ((prevAngle < Math.PI && nextAngle < Math.PI) || (prevAngle > Math.PI && nextAngle > Math.PI)) {
-                //   console.log(`concave corner between atoms ${molObject.atoms.indexOf(currentAtom1) + 1} and ${molObject.atoms.indexOf(currentAtom2) + 1}`);
-                //   // perpDx *= -1;
-                //   // perpDy *= -1;
-                // }
               }
-              
 
               // shorten the double bond slightly on each end
               const startXdouble = startX + 0.25 * Math.cos(angle);
               const startYdouble = startY + 0.25 * Math.sin(angle);
               const endXdouble = endX - 0.25 * Math.cos(angle);
               const endYdouble = endY - 0.25 * Math.sin(angle);
-              
-              
-
-
 
               return (
-                <>
+                <Fragment key={index}>
                   <line x1={startX} y1={startY} x2={endX} y2={endY} stroke='black' strokeWidth={0.05} strokeLinecap='round' />
                   <line x1={startXdouble + perpDx} y1={startYdouble + perpDy} x2={endXdouble + perpDx} y2={endYdouble + perpDy} stroke='black' strokeWidth={0.05} strokeLinecap='round' />
-                </>
+                </Fragment>
               );
-            } 
-
-
-            
+            }
           }
         })}
       </svg>
