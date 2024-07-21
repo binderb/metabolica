@@ -24,7 +24,7 @@ type Bond = {
   atom1: number;
   atom2: number;
   order: number;
-  stereo: string;
+  stereo: number;
 };
 
 export default function Structure({ mol, scale }: Props) {
@@ -67,7 +67,7 @@ export default function Structure({ mol, scale }: Props) {
           atom1: parseInt(line.slice(0, 3)),
           atom2: parseInt(line.slice(3, 6)),
           order: parseInt(line.slice(6, 9)),
-          stereo: line.slice(9, 12).trim(),
+          stereo: parseInt(line.slice(9, 12)),
         } as Bond;
         newMolObject.bonds.push(bond);
       }
@@ -220,7 +220,44 @@ export default function Structure({ mol, scale }: Props) {
             endY += 0.35 * Math.sin(angle2);
           }
 
-          if (bond.order === 1) return <line key={index} x1={startX} y1={startY} x2={endX} y2={endY} stroke='black' strokeWidth={0.05} strokeLinecap='round' />;
+          if (bond.order === 1) {
+            if (bond.stereo === 0) {
+              // standard bond
+              return <line key={index} x1={startX} y1={startY} x2={endX} y2={endY} stroke='black' strokeWidth={0.05} strokeLinecap='round' />;
+            }
+            if (bond.stereo === 1) {
+              // wedge bond
+              // create a triangle with the point at the start atom and the base at the end atom
+              const dx = endX - startX;
+              const dy = endY - startY;
+              const angle = Math.atan2(dy, dx);
+              const perpAngle = angle + Math.PI / 2;
+              const perpDx = 0.1 * Math.cos(perpAngle);
+              const perpDy = 0.1 * Math.sin(perpAngle);
+              const points = [
+                [startX, startY],
+                [endX - perpDx, endY - perpDy],
+                [endX + perpDx, endY + perpDy],
+              ];
+              return <polygon key={index} points={points.map((point) => point.join(',')).join(' ')} stroke='black' strokeWidth={0.05} fill='black' />;
+            }
+            if (bond.stereo === 4) {
+              // wavy bond
+              // create a sine wave with 4 periods and a small amplitude
+              const dx = endX - startX;
+              const dy = endY - startY;
+              const angle = Math.atan2(dy, dx);
+              const amplitude = 0.1;
+              const period = 4 * Math.PI;
+              const numPoints = 100;
+              const points = Array.from({ length: numPoints }, (_, i) => {
+                const x = startX + i * dx / numPoints;
+                const y = startY + i * dy / numPoints;
+                return [x, y + amplitude * Math.sin(i * period / numPoints)];
+              });
+              return <polyline key={index} points={points.map((point) => point.join(',')).join(' ')} stroke='black' strokeWidth={0.05} fill='none' />;
+            }
+          }
 
           if (bond.order === 2) {
             // check both atoms to determine if this is a terminal bond or not.
